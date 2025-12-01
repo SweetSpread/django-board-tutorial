@@ -72,4 +72,5 @@ python manage.py runserver
 This project is part of a tutorial series documented on my blog. You can find detailed explanations for each step here:
 이 프로젝트는 제 블로그에 연재된 튜토리얼의 결과물입니다. 각 단계별 상세한 설명은 아래 링크에서 확인하실 수 있습니다.
 
-👉 **[Step-by-Step Django Tutorial Phase 1](https://try-to-do.tistory.com/category/Step%20by%20Step/%5BPhase%201%5D%20django-board-tutorial)**
+👉 **[Step-by-Step Django Tutorial Phase 1](https://try-to-do.tistory.com/category/Step%20by%20Step/%5BPhase%201%5D%20django%20board%20tutorial)**
+
