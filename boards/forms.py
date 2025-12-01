@@ -1,5 +1,5 @@
 from django import forms
-from .models import Post
+from .models import Post, Comment
 
 # Post 모델을 기반으로 입력 폼을 자동으로 생성하는 클래스
 class PostForm(forms.ModelForm):
@@ -19,4 +19,21 @@ class PostForm(forms.ModelForm):
                 'rows': 10,
                 'placeholder': '내용을 입력하세요'
             }),
+        }
+
+# 댓글 입력 폼
+class CommentForm(forms.ModelForm):
+    class Meta:
+        model = Comment
+        fields = ['content']
+        widgets = {
+            'content': forms.Textarea(attrs={
+                'class': 'form-control',
+                'rows': 3,  # 댓글창은 작게 3줄 정도
+                'placeholder': '댓글을 남겨보세요.'
+            }),
+        }
+
+        labels = {
+            'content': ''   # 라벨(이름)을 없애서 깔끕하게 입력창만 보여줌
         }

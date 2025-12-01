@@ -43,6 +43,64 @@
             {% endif %}
         </div>
 
-    </div>
-</div>
+        <hr class="my-4">
+
+        <div class="card">
+            <div class="card-header">
+                댓글 <span class="badge bg-secondary">{{ post.comments.count }}</span>
+            </div>
+            
+            <div class="card-body">
+                <ul class="list-group list-group-flush mb-3">
+                    {% for comment in post.comments.all %}
+                    <li class="list-group-item">
+                        <div class="d-flex justify-content-between">
+                            <div>
+                                <strong>{{ comment.author.username }}</strong>
+                                <span class="text-muted small ms-2">{{ comment.created_at|date:"Y-m-d H:i" }}</span>
+                            </div>
+                            
+                            {% if user == comment.author %}
+                            <div>
+                                <a href="{% url 'boards:comment_edit' comment.pk %}" class="text-decoration-none small text-muted me-2">수정</a>
+                                
+                                <a href="{% url 'boards:comment_delete' comment.pk %}" 
+                                class="text-decoration-none small text-danger"
+                                onclick="return confirm('정말 삭제하시겠습니까?');">삭제</a>
+                            </div>
+                            {% endif %}
+                        </div>
+                        
+                        <div class="mt-1 text-break">
+                            {{ comment.content|linebreaks }}
+                        </div>
+                    </li>
+                    {% empty %}
+                    <li class="list-group-item text-center text-muted">
+                        아직 댓글이 없습니다. 첫 번째 댓글을 남겨보세요!
+                    </li>
+                    {% endfor %}
+                </ul>
+
+                {% if user.is_authenticated %}
+                <form action="{% url 'boards:comment_create' board.code post.pk %}" method="post">
+                    {% csrf_token %}
+                    <div class="d-flex gap-2">
+                        <div class="flex-grow-1">
+                            {{ comment_form.content }} </div>
+                        <button type="submit" class="btn btn-primary" style="height: fit-content;">등록</button>
+                    </div>
+                </form>
+                {% else %}
+                <div class="text-center py-3 bg-light rounded">
+                    댓글을 작성하려면 <a href="{% url 'accounts:login' %}">로그인</a>이 필요합니다.
+                </div>
+                {% endif %}
+            </div>
+        </div>
+        
+        <div class="mb-5"></div>
+
+    </div> 
+</div> 
 {% endblock %}

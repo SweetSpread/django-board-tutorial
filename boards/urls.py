@@ -5,6 +5,15 @@ from . import views # 현재 폴더(.)에 있는 views.py를 가져옴
 app_name = 'boards'
 
 urlpatterns = [
+    # [중요] 'comment/...' 처럼 고정된 단어가 있는 패턴을 가장 위에 둡니다.
+    # 댓글 수정
+    path('comment/<int:comment_pk>/edit/', views.comment_edit, name='comment_edit'),
+
+    # 댓글 삭제
+    path('comment/<int:comment_pk>/delete/', views.comment_delete, name='comment_delete'),
+
+    
+    # 변수(<str:board_code>)를 받는 패턴들은 그 아래에 둡니다.
     # 목록 화면
     # 주소 패턴: /board/자유게시판코드/
     # <str:board_code>: 자바의 @PathVariable String boardCode 와 동일
@@ -25,4 +34,7 @@ urlpatterns = [
 
     # 삭제
     path('<str:board_code>/<int:pk>/delete/', views.board_delete, name='board_delete'),
+
+    # 댓글 저장
+    path('<str:board_code>/<int:pk>/comment', views.comment_create, name='comment_create'),
 ]

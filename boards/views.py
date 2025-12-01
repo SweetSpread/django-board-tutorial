@@ -2,8 +2,8 @@
 # login_required : 로그인 안 한 사람은 못 들어오게 막는 어노테이션(Spring Security 설정과 유사)
 from django.shortcuts import render, get_object_or_404, redirect
 from django.contrib.auth.decorators import login_required
-from .models import Board, Post
-from .forms import PostForm # 방금 만든 폼 가져오기
+from .models import Board, Post, Comment
+from .forms import PostForm, CommentForm # 방금 만든 폼 가져오기
 from django.contrib import messages # 알림 메시지 띄우기용 (옵션)
 from django.core.paginator import Paginator # 페이징 도구
 from django.db.models import Q  # OR 조건을 쓰기 위한 도구
@@ -71,10 +71,14 @@ def board_detail(request, board_code, pk):
     post.views += 1
     post.save()
 
+    # 2-2 댓글 입력 폼을 생성해서 템플릿으로 보냄
+    comment_form = CommentForm()
+
     # 3. 화면으로 데이터 전달
     context = {
         'board' : board,
-        'post' : post
+        'post' : post,
+        'comment_form': comment_form,   # 템플릿에서 {{ comment_form }}으로 쓸 수 있음
     }
     
     return render(request, 'boards/board_detail.html', context)
@@ -153,3 +157,57 @@ def board_delete(request, board_code, pk):
 
     # 삭제 후 목록으로 이동
     return redirect('boards:board_list', board_code=board_code)
+
+# 댓글 저장 기능
+@login_required
+def comment_create(request, board_code, pk):
+    board = get_object_or_404(Board, code=board_code)
+    post = get_object_or_404(Post, pk=pk, board=board)
+
+    if request.method == 'POST':
+        form = CommentForm(request.POST)
+        if form.is_valid():
+            comment = form.save(commit=False)
+            comment.author = request.user   # 작성자 : 현재 로그인한 사람
+            comment.post = post             # 게시글 : 현재 보고 있는 글
+            comment.save()
+    
+    # 댓글 저장 후 다시 상세 페이지로 리다이렉트
+    return redirect('boards:board_detail', board_code=board.code, pk=post.pk)
+
+# 댓글 수정 기능
+def comment_edit(request, comment_pk):
+    # 수정할 댓글을 DB에서 가져옵니다.
+    comment = get_object_or_404(Comment, pk=comment_pk)
+
+    # [보안] 작성자가 아니면 권한 없음 에러를 띄우거나, 원래 페이지로 돌려보냅니다.
+    if comment.author != request.user:
+        return redirect('boards:board_detail', board_code=comment.post.board.code, pk=comment.post.pk)
+    
+    if request.method == 'POST':
+        # [POST] 수정 내용을 저장할 때
+        # instance=comment : 기존에 있던 댓글 데이터를 폼에 채운 상태로 시작 (수정 모드)
+        form = CommentForm(request.POST, instance=comment)
+        if form.is_valid():
+            form.save()
+            # 수정이 끝나면 원래 있던 게시글 상세 페이지로 돌아갑니다.
+            return redirect('boards:board_detail', board_code=comment.post.board.code, pk=comment.post.pk)
+    else:
+        # [GET] 수정 폼을 보여줄 떄
+        form = CommentForm(instance=comment)
+    
+    # 댓글 수정 전용 템플릿을 렌더링합니다.
+    return render(request, 'boards/comment_edit.html', {'form': form, 'comment': comment})
+
+# 댓글 삭제 기능
+@login_required
+def comment_delete(request, comment_pk):
+    # 삭제할 댓글을 DB에서 가져옵니다.
+    comment = get_object_or_404(Comment, pk=comment_pk)
+
+    # [보안] 작성자 보인 확인
+    if comment.author == request.user:
+        comment.delete() # DB 에서 삭제
+    
+    # 삭제 후 원래 있던 게시글 상세 페이지로 돌아갑니다.
+    return redirect('boards:board_detail', board_code=comment.post.board.code, pk=comment.post.pk)

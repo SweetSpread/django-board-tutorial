@@ -48,3 +48,20 @@ class Post(models.Model):
 
     def __str__(self):
         return f"[{self.board.title}] {self.title}"
+    
+class Comment(models.Model):
+    # [FK] 어떤 게시글에 달린 댓글인지 (Post와 1:N 관계)
+    # related_name= 'comments': 나중에 post.comments 로 댓글들을 쉽게 가져오기 위함
+    post = models.ForeignKey(Post, on_delete=models.CASCADE, related_name='comments',verbose_name="게시글")
+
+    # [FK] 댓글 작성자
+    author = models.ForeignKey(settings.AUTH_USER_MODEL, on_delete=models.CASCADE, verbose_name="작성자")
+
+    # 댓글 내용(짧을 수 있으니 TextField 대신 CharField도 가능하지만, 넉넉하게 Text로 갑니다.)
+    content = models.TextField(verbose_name="댓글 내용")
+
+    created_at = models.DateTimeField(auto_now_add=True, verbose_name="작성일")
+    updated_at = models.DateTimeField(auto_now=True, verbose_name="수정일")
+
+    def __str__(self):
+        return f"[{self.post.title}] {self.content[:20]}..."
