@@ -22,6 +22,12 @@
                     {% endif %}
                 </div>
 
+                {% if post.image %}
+                <div class="mb-4 text-center">
+                    <img src="{{ post.image.url }}" alt="첨부 이미지" class="img-fluid rounded">
+                </div>
+                {% endif %}
+
                 <div class="content" style="min-height: 200px;">
                     {{ post.content|linebreaks }}
                 </div>

@@ -37,7 +37,7 @@ def board_list(request, board_code):
     page = request.GET.get('page', 1)
 
     # Paginator(데이터전체, 한페이지_개수) : 글을 10개씩 자르겠다는 설정
-    paginator = Paginator(posts, 1)
+    paginator = Paginator(posts, 10)
 
     # page_obj : 요청한 페이지에 해당하는 '진짜 데이터'와 '페이징 정보'가 담긴
     page_obj = paginator.get_page(page)
@@ -91,7 +91,9 @@ def board_write(request, board_code):
     # 2. 요청 방식에 따른 분기 (GET vs POST)
     if request.method == 'POST':
         # [POST 요청] : 사용자가 '저장' 버튼을 눌렀을 때
-        form = PostForm(request.POST)   # 사용자가 입력한 데이터(request.POST)를 폼에 채워넣음
+        #첨부파일 추가
+        #form = PostForm(request.POST)   # 사용자가 입력한 데이터(request.POST)를 폼에 채워넣음
+        form = PostForm(request.POST, request.FILES)
 
         if form.is_valid(): # 유효성 검사(제목이 비어있는지 등) - Spring 의 @Valid
             # commit = False: DB에 당장 저장하지 말고, 잠시 메모리에만 객체(Post)를 만들어달라는 뜻
@@ -126,7 +128,9 @@ def board_edit(request, board_code, pk):
     if request.method == 'POST':
         #[POST]  수정사항 저장
         # instance=post : 기존 글 데이터를 폼에 채워 넣은 상태에서 수정 시작하겠다는 뜻(핵심!)
-        form = PostForm(request.POST, instance=post)
+        #첨부파일 추가
+        #form = PostForm(request.POST, instance=post)
+        form = PostForm(request.POST, request.FILES, instance=post)
 
         if form.is_valid():
             post = form.save(commit=False)

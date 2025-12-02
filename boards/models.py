@@ -46,6 +46,11 @@ class Post(models.Model):
 
     views = models.PositiveBigIntegerField(default=0, verbose_name="조회수")
 
+    # 이미지 필드
+    # upload_to='board/images/%Y/%m/%d/': 파일을 저장할 때 '년/월/일' 폴더로 자동 분류해줍니다. (관리용이)
+    # blank=True, null=True: 이미지를 첨부하지 않아도 글 작성이 가능하도록 허용합니다.
+    image = models.ImageField(upload_to='board/images/%Y/%m/%d/', blank=True, null=True, verbose_name="이미지")
+
     def __str__(self):
         return f"[{self.board.title}] {self.title}"
     

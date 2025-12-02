@@ -135,3 +135,10 @@ AUTH_USER_MODEL = 'accounts.User'
 LOGIN_REDIRECT_URL = '/board/free/'
 # 로그아웃 후 이동할 URL (로그아웃 했으니 다시 게시판 목록으로)
 LOGOUT_REDIRECT_URL = '/accounts/login/'
+
+# 사용자가 업로드한 파일(Media) 설정
+# 1. 브라우저에서 접근할 URL 주소 (예: http://127.0.0.1:8000/media/photo.jpg)
+MEDIA_URL = '/media/'
+
+# 2. 실제 파일이 저장될 하드디스크 경로(프로젝트폴더/media/)
+MEDIA_ROOT = BASE_DIR / 'media'
