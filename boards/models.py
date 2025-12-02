@@ -51,6 +51,12 @@ class Post(models.Model):
     # blank=True, null=True: 이미지를 첨부하지 않아도 글 작성이 가능하도록 허용합니다.
     image = models.ImageField(upload_to='board/images/%Y/%m/%d/', blank=True, null=True, verbose_name="이미지")
 
+    # 좋아요 (Many-to-Many)
+    # User 모델과 다대다 관계를 맺습니다.
+    # related_name='like_posts': 나중에 유저 입장에서 "내가 좋아요 누른 글들"을 가져올 때 사용할 이름입니다.
+    # (주의: related_name을 안 쓰면 author 필드와 충돌이 날 수 있습니다.)
+    likes = models.ManyToManyField(settings.AUTH_USER_MODEL, related_name='like_posts', blank=True, verbose_name="좋아요")
+
     def __str__(self):
         return f"[{self.board.title}] {self.title}"
     

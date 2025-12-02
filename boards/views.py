@@ -215,3 +215,19 @@ def comment_delete(request, comment_pk):
     
     # 삭제 후 원래 있던 게시글 상세 페이지로 돌아갑니다.
     return redirect('boards:board_detail', board_code=comment.post.board.code, pk=comment.post.pk)
+
+@login_required
+def post_like(request, board_code, pk):
+    post = get_object_or_404(Post, pk=pk)
+
+    # [로직] 좋아요 토글 (Toggle)
+    # filter(id=...): 현재 게시글의 좋아요 목록에 내 아이디가 있는지 확인
+    if post.likes.filter(id=request.user.id).exists():
+        # 이미 눌렀다면 -> 취소 (remove)
+        post.likes.remove(request.user)
+    else:
+        # 안 눌렀다면 -> 추가 (add)
+        post.likes.add(request.user)
+    
+    # 처리가 끝나면 상세 페이지로 다시 이동
+    return redirect('boards:board_detail', board_code=board_code, pk=pk)
