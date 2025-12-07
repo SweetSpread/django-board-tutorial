@@ -1,5 +1,5 @@
 {% extends 'base.html' %}
-
+{% load humanize %}
 {% block content %}
 <div class="row justify-content-center">
     <div class="col-md-10">
@@ -13,14 +13,32 @@
             </div>
             <div class="card-body">
                 <div class="mb-4 text-muted small border-bottom pb-2">
-                    <span>작성자: <strong>{{ post.author.username }}</strong></span>
+                    <!--span>작성자: <strong>{{ post.author.username }}</strong></span-->
+                    <span class="dropdown">
+                        <a href="#" class="text-decoration-none text-dark fw-bold dropdown-toggle" data-bs-toggle="dropdown">
+                            {% if post.author.avatar %}
+                                <img src="{{ post.author.avatar.url }}" width="24" height="24" class="rounded-circle border me-1">
+                            {% endif %}
+                            {{ post.author.nickname|default:post.author.username }}
+                        </a>
+                        <ul class="dropdown-menu">
+                            <li><a class="dropdown-item" href="{% url 'accounts:message_send' post.author.pk %}">쪽지 보내기</a></li>
+                        </ul>
+                    </span>                    
                     <span class="mx-2">|</span>
-                    <span>작성일: {{ post.created_at|date:"Y-m-d H:i" }}</span>
+                    <!--span>작성일: {{ post.created_at|date:"Y-m-d H:i" }}</span-->
+                    <span class="text-muted small ms-2">{{ post.created_at|naturaltime }}</span>
                     {% if post.update_author %}
                     <span class="mx-2">|</span>
                     <span>수정자: {{ post.update_author.username }}</span>
                     {% endif %}
                 </div>
+
+                {% if post.image %}
+                <div class="mb-4 text-center">
+                    <img src="{{ post.image.url }}" alt="첨부 이미지" class="img-fluid rounded">
+                </div>
+                {% endif %}
 
                 <div class="content" style="min-height: 200px;">
                     {{ post.content|linebreaks }}
@@ -42,6 +60,31 @@
             </div>
             {% endif %}
         </div>
+        
+        <div class="text-center my-4">
+            {% if user.is_authenticated %}
+                <a href="{% url 'boards:post_like' board.code post.pk %}" class="text-decoration-none">
+                    
+                    {% if user in post.likes.all %}
+                        <button type="button" class="btn btn-danger">
+                            <i class="bi bi-heart-fill"></i> 좋아요 취소
+                            <span class="badge bg-light text-dark ms-1">{{ post.likes.count }}</span>
+                        </button>
+                    {% else %}
+                        <button type="button" class="btn btn-outline-danger">
+                            <i class="bi bi-heart"></i> 좋아요
+                            <span class="badge bg-danger ms-1">{{ post.likes.count }}</span>
+                        </button>
+                    {% endif %}
+                    
+                </a>
+            {% else %}
+                <button type="button" class="btn btn-outline-secondary" disabled>
+                    좋아요 <span class="badge bg-secondary ms-1">{{ post.likes.count }}</span>
+                </button>
+                <div class="small text-muted mt-1">로그인 후 추천 가능합니다.</div>
+            {% endif %}
+        </div>
 
         <hr class="my-4">
 
@@ -56,8 +99,18 @@
                     <li class="list-group-item">
                         <div class="d-flex justify-content-between">
                             <div>
-                                <strong>{{ comment.author.username }}</strong>
-                                <span class="text-muted small ms-2">{{ comment.created_at|date:"Y-m-d H:i" }}</span>
+                                <!--strong>{{ comment.author.username }}</strong-->
+                                <strong>
+                                    <a href="{% url 'accounts:message_send' comment.author.pk %}" class="text-decoration-none text-dark" title="쪽지 보내기">
+                                        {% if comment.author.avatar %}
+                                            <img src="{{ comment.author.avatar.url }}" width="20" height="20" class="rounded-circle me-1">
+                                        {% endif %}
+                                        {{ comment.author.nickname|default:comment.author.username }}
+                                    </a>
+                                </strong>
+
+                                <!--span class="text-muted small ms-2">{{ comment.created_at|date:"Y-m-d H:i" }}</span-->
+                                <span class="text-muted small ms-2">{{ comment.created_at|naturaltime }}</span>
                             </div>
                             
                             {% if user == comment.author %}

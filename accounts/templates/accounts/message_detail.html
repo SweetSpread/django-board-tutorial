@@ -1,0 +1,47 @@
+{% extends 'base.html' %}
+
+{% block content %}
+<div class="row justify-content-center">
+    <div class="col-md-8">
+        <div class="card mt-4">
+            <div class="card-header d-flex justify-content-between align-items-center">
+                <h5 class="mb-0">{{ message.title }}</h5>
+                <small class="text-muted">{{ message.created_at|date:"Y-m-d H:i" }}</small>
+            </div>
+            <div class="card-body">
+                <div class="mb-3 p-3 bg-light rounded d-flex justify-content-between align-items-center">
+                    <div>
+                        <span class="text-secondary me-2">보낸 사람:</span>
+                        {% if message.sender.avatar %}
+                            <img src="{{ message.sender.avatar.url }}" width="24" height="24" class="rounded-circle">
+                        {% endif %}
+                        <strong>{{ message.sender.nickname|default:message.sender.username }}</strong>
+                    </div>
+                    
+                    {% if user == message.sender %}
+                        <div class="small">
+                            {% if message.read_at %}
+                                <span class="text-success"><i class="bi bi-check-all"></i> {{ message.read_at|date:"m/d H:i" }} 읽음</span>
+                            {% else %}
+                                <span class="text-muted">읽지 않음</span>
+                            {% endif %}
+                        </div>
+                    {% endif %}
+                </div>
+
+                <div class="content mb-4" style="min-height: 150px;">
+                    {{ message.content|linebreaks }}
+                </div>
+
+                <div class="d-flex justify-content-end gap-2">
+                    <a href="{% url 'accounts:message_list' %}" class="btn btn-secondary">목록</a>
+                    
+                    {% if user == message.receiver %}
+                        <a href="{% url 'accounts:message_send' message.sender.pk %}" class="btn btn-primary">답장</a>
+                    {% endif %}
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+{% endblock %}

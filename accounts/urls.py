@@ -25,4 +25,9 @@ urlpatterns = [
 
     # 프로필 수정
     path('profile/edit/', views.profile_edit, name='profile_edit'),
+
+    # 쪽지 관련 URL
+    path('messages/', views.message_list, name='message_list'),     # 쪽지함 (받은/보낸)
+    path('messages/<int:message_pk>/', views.message_detail, name='message_detail'),    # 쪽지 상세
+    path('messages/send/<int:receiver_pk>/', views.message_send, name='message_send'),   # 쪽지 보내기
 ]

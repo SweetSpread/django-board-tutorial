@@ -37,6 +37,7 @@ INSTALLED_APPS = [
     'django.contrib.sessions',
     'django.contrib.messages',
     'django.contrib.staticfiles',
+    'django.contrib.humanize',
 
     # --- [사용자 추가 앱] ---
     # Spring의 @ComponentScan 처럼, 여기에 등록해야 장고가 이 앱들을 관리합니다.
@@ -108,7 +109,7 @@ AUTH_PASSWORD_VALIDATORS = [
 # Internationalization
 # https://docs.djangoproject.com/en/5.2/topics/i18n/
 
-LANGUAGE_CODE = 'en-us'
+LANGUAGE_CODE = 'ko-kr'
 
 TIME_ZONE = 'UTC'
 
@@ -130,8 +131,21 @@ DEFAULT_AUTO_FIELD = 'django.db.models.BigAutoField'
 # 기본 User 모델 대신 accounts 앱의 User 모델을 사용한다고 명시
 AUTH_USER_MODEL = 'accounts.User'
 
+
+# @login_required를 만났을 때 이동할 로그인 페이지 주소
+LOGIN_URL = '/accounts/login'
+
 # 로그인/로그아웃 후 이동할 URL 설정
 # 로그인 성공 시 이동할 URL (일단 자유게시판으로 고정)
-LOGIN_REDIRECT_URL = '/board/free/'
+#LOGIN_REDIRECT_URL = '/board/free/'
+Login_REDIRECT_URL = '/'
+
 # 로그아웃 후 이동할 URL (로그아웃 했으니 다시 게시판 목록으로)
 LOGOUT_REDIRECT_URL = '/accounts/login/'
+
+# 사용자가 업로드한 파일(Media) 설정
+# 1. 브라우저에서 접근할 URL 주소 (예: http://127.0.0.1:8000/media/photo.jpg)
+MEDIA_URL = '/media/'
+
+# 2. 실제 파일이 저장될 하드디스크 경로(프로젝트폴더/media/)
+MEDIA_ROOT = BASE_DIR / 'media'

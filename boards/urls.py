@@ -37,4 +37,7 @@ urlpatterns = [
 
     # 댓글 저장
     path('<str:board_code>/<int:pk>/comment', views.comment_create, name='comment_create'),
+
+    # 좋아요 토글 URL
+    path('<str:board_code>/<int:pk>/like/', views.post_like, name='post_like'),
 ]
