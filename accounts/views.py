@@ -1,7 +1,10 @@
-from django.shortcuts import render, redirect
+from django.shortcuts import render, get_object_or_404, redirect
 from django.contrib.auth import login as auth_login # 로그인 처리 함수
-from .forms import CustomUserCreationForm, CustomUserChangeForm
+from .forms import CustomUserCreationForm, CustomUserChangeForm, MessageForm
+from django.contrib.auth import get_user_model  # User 모델 가져오기
+from django.utils import timezone   # 시간 기록용
 from django.contrib.auth.decorators import login_required
+from .models import Message # Message 모델 import
 
 def signup(request):
     if request.method == 'POST':
@@ -42,3 +45,66 @@ def profile_edit(request):
         form = CustomUserChangeForm(instance=request.user)
 
     return render(request, 'accounts/profile_edit.html', {'form': form})
+
+
+# MESSAGE #
+# 1. 쪽지함 (목록)
+@login_required
+def message_list(request):
+    # 받은 쪽지 (나에게 온 것)
+    received_messages = Message.objects.filter(receiver=request.user)
+    # 보낸 쪽지(내가 보낸 것)
+    sent_messages = Message.objects.filter(sender=request.user)
+
+    # 안읽은 쪽지 개수 계산 (read_at이 null인 것만 카운트)
+    unread_count = received_messages.filter(read_at__isnull=True).count()
+
+    context = {
+        'received_messages': received_messages,
+        'unread_count': unread_count,
+        'sent_messages': sent_messages,
+    }
+
+    return render(request, 'accounts/message_list.html', context)
+
+# 2. 쪽지 상세 보기 & 읽음 처리
+@login_required
+def message_detail(request, message_pk):
+    # 쪽지 객체 가져오기 (없으면 404)
+    message = get_object_or_404(Message, pk=message_pk)
+
+    # [권한 체크] 보낸 사람도 아니고, 받은 사람도 아니면 볼 수 없음
+    if request.user != message.sender and request.user != message.receiver:
+        # 에러 페이지로 보내거나 목록으로 튕겨냄
+        return redirect('accounts:message_list')
+    
+    # [읽음 처리] 받는 사람이 처음 열어본 경우에만 기록
+    if request.user == message.receiver and not message.read_at:
+        message.read_at = timezone.now()  # 현재 시간 기록
+        message.save()
+
+    return render(request, 'accounts/message_detail.html', {'message': message})
+
+
+# 3. 쪽지 보내기
+@login_required
+def message_send(request, receiver_pk):
+    User = get_user_model()
+    receiver = get_object_or_404(User, pk=receiver_pk)
+
+    # [방어 로직] 나 자신에게 보내는 것 방지 (선택사항)
+    if receiver == request.user:
+        return redirect('accounts:message_list')    # 혹은 에러 메시지 표시
+    
+    if request.method == 'POST':
+        form = MessageForm(request.POST)
+        if form.is_valid():
+            message = form.save(commit=False)
+            message.sender = request.user   # 보낸 사람 : 나
+            message.receiver = receiver # 받는 사람: 지정된 유저
+            message.save()
+            return redirect('accounts:message_list')
+    else:
+        form = MessageForm()
+    
+    return render(request, 'accounts/message_send.html', {'form': form, 'receiver': receiver})

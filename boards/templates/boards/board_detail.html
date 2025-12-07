@@ -13,7 +13,18 @@
             </div>
             <div class="card-body">
                 <div class="mb-4 text-muted small border-bottom pb-2">
-                    <span>작성자: <strong>{{ post.author.username }}</strong></span>
+                    <!--span>작성자: <strong>{{ post.author.username }}</strong></span-->
+                    <span class="dropdown">
+                        <a href="#" class="text-decoration-none text-dark fw-bold dropdown-toggle" data-bs-toggle="dropdown">
+                            {% if post.author.avatar %}
+                                <img src="{{ post.author.avatar.url }}" width="24" height="24" class="rounded-circle border me-1">
+                            {% endif %}
+                            {{ post.author.nickname|default:post.author.username }}
+                        </a>
+                        <ul class="dropdown-menu">
+                            <li><a class="dropdown-item" href="{% url 'accounts:message_send' post.author.pk %}">쪽지 보내기</a></li>
+                        </ul>
+                    </span>                    
                     <span class="mx-2">|</span>
                     <span>작성일: {{ post.created_at|date:"Y-m-d H:i" }}</span>
                     {% if post.update_author %}
@@ -87,7 +98,16 @@
                     <li class="list-group-item">
                         <div class="d-flex justify-content-between">
                             <div>
-                                <strong>{{ comment.author.username }}</strong>
+                                <!--strong>{{ comment.author.username }}</strong-->
+                                <strong>
+                                    <a href="{% url 'accounts:message_send' comment.author.pk %}" class="text-decoration-none text-dark" title="쪽지 보내기">
+                                        {% if comment.author.avatar %}
+                                            <img src="{{ comment.author.avatar.url }}" width="20" height="20" class="rounded-circle me-1">
+                                        {% endif %}
+                                        {{ comment.author.nickname|default:comment.author.username }}
+                                    </a>
+                                </strong>
+
                                 <span class="text-muted small ms-2">{{ comment.created_at|date:"Y-m-d H:i" }}</span>
                             </div>
                             

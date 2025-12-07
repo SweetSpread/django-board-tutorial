@@ -1,4 +1,5 @@
 from django.db import models
+from django.conf import settings
 from django.contrib.auth.models import AbstractUser
 
 # 자바의 'MemberEntity extends BaseUser'와 유사합니다.
@@ -30,3 +31,19 @@ class User(AbstractUser):
         # 변경! 닉네임이 있으면 닉네임 리턴, 없으면 아이디 리턴
         #return self.username
         return self.nickname if self.nickname else self.username
+    
+class Message(models.Model):
+    sender = models.ForeignKey(settings.AUTH_USER_MODEL, related_name="sent_messages", on_delete=models.CASCADE, verbose_name="보낸 사람")
+    receiver = models.ForeignKey(settings.AUTH_USER_MODEL, related_name="received_messages", on_delete=models.CASCADE, verbose_name="받는 사람")
+
+    title = models.CharField(max_length=200, verbose_name="제목")
+    content = models.TextField(verbose_name="내용")
+
+    created_at = models.DateTimeField(auto_now_add=True, verbose_name="보낸 시간")
+    read_at = models.DateTimeField(null=True, blank=True, verbose_name="읽은 시간")
+
+    def __str__(self):
+        return f"To {self.receiver}: {self.title}"
+    
+    class Meta:
+        ordering = ['-created_at']  # 최신 쪽지가 맨 위에 오도록 정렬
