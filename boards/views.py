@@ -7,6 +7,8 @@ from .forms import PostForm, CommentForm # 방금 만든 폼 가져오기
 from django.contrib import messages # 알림 메시지 띄우기용 (옵션)
 from django.core.paginator import Paginator # 페이징 도구
 from django.db.models import Q  # OR 조건을 쓰기 위한 도구
+from django.utils import timezone
+from datetime import datetime, timedelta, time  # 날짜 계산용
 
 # 메인 페이지
 @login_required
@@ -102,11 +104,38 @@ def board_detail(request, board_code, pk):
     # 2-1 조회수 1 증가 로직
     # 단순하게 새로고침할 때 마다 증가하는 방식입니다.
     # (실무에서는 쿠키나 세션을 이용해 '하루에 1번만' 혹은 작성자는 제외 같은 제한을 둡니다.)
-    post.views += 1
-    post.save()
+    #post.views += 1
+    #post.save()
 
+    # 조회수 증가 로직 (쿠키 사용) 으로 변경
+    # 1. 쿠키 이름 정의(예: hitboard_free_15)
+    cookie_name = f'hitboard_{board_code}_{pk}'
+
+    # 2. 렌더링 미리 준비 (응답 객체를 만들어야 쿠키를 심을 수 있음)
+    response = render(request, 'boards/board_detail.html', {
+        'board' : board,
+        'post' : post,
+        'comments' : post.comments.select_related('author').all(),  # 최적화 포함
+        'form' : CommentForm()  #댓글 폼
+    })
+
+    # 3. 쿠키 확인: 쿠키가 없을 때만 조회수 증가
+    if request.COOKIES.get(cookie_name) is None:
+        post.views += 1
+        post.save()
+
+        # 4. 쿠키 설정(오늘 밤 자정까지만 유지)
+        # 내일 0시 구하기
+        tomorrow = datetime.now() + timedelta(days=1)
+        midnight = datetime.combine(tomorrow, time.min)
+        expires = (midnight - datetime.now()).total_seconds()
+
+        # response에 쿠키 심기 (set_cookie)
+        response.set_cookie(cookie_name, 'true', max_age=expires)
+    
+    """
     # 2-2 댓글 입력 폼을 생성해서 템플릿으로 보냄
-    comment_form = CommentForm()
+    #comment_form = CommentForm()
 
     # 3. 화면으로 데이터 전달
     context = {
@@ -116,6 +145,8 @@ def board_detail(request, board_code, pk):
     }
     
     return render(request, 'boards/board_detail.html', context)
+    """
+    return response
 
 @login_required # 로그인이 필수라고 선언(로그인 안 되어 있으면 로그인 페이지로 보냄)
 def board_write(request, board_code):

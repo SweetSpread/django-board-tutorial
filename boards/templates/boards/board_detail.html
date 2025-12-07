@@ -1,5 +1,5 @@
 {% extends 'base.html' %}
-
+{% load humanize %}
 {% block content %}
 <div class="row justify-content-center">
     <div class="col-md-10">
@@ -26,7 +26,8 @@
                         </ul>
                     </span>                    
                     <span class="mx-2">|</span>
-                    <span>작성일: {{ post.created_at|date:"Y-m-d H:i" }}</span>
+                    <!--span>작성일: {{ post.created_at|date:"Y-m-d H:i" }}</span-->
+                    <span class="text-muted small ms-2">{{ post.created_at|naturaltime }}</span>
                     {% if post.update_author %}
                     <span class="mx-2">|</span>
                     <span>수정자: {{ post.update_author.username }}</span>
@@ -108,7 +109,8 @@
                                     </a>
                                 </strong>
 
-                                <span class="text-muted small ms-2">{{ comment.created_at|date:"Y-m-d H:i" }}</span>
+                                <!--span class="text-muted small ms-2">{{ comment.created_at|date:"Y-m-d H:i" }}</span-->
+                                <span class="text-muted small ms-2">{{ comment.created_at|naturaltime }}</span>
                             </div>
                             
                             {% if user == comment.author %}

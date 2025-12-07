@@ -1,5 +1,5 @@
 {% extends 'base.html' %}
-
+{% load humanize %}
 {% block content %}
 <div class="container mt-4">
     <h3 class="mb-4"><i class="bi bi-envelope"></i> 내 쪽지함</h3>
@@ -32,7 +32,8 @@
                             <span class="badge bg-danger me-1">N</span> {% endif %}
                             {{ msg.title }}
                         </strong>
-                        <small class="text-muted">{{ msg.created_at|date:"Y-m-d" }}</small>
+                        <!--small class="text-muted">{{ msg.created_at|date:"Y-m-d" }}</small-->
+                        <small class="text-muted">{{ msg.created_at|naturaltime }}</small>
                     </div>
                     <div class="small text-muted mt-1">
                         From: 
