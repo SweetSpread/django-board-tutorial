@@ -1,0 +1,130 @@
+{% extends 'base.html' %}
+
+{% block content %}
+<div class="row">
+    <div class="col-12 mb-4">
+        <div class="p-4 bg-light rounded-3 border">
+            <h3>👋 안녕하세요, {{ user.username }}님!</h3>
+            <p class="text-muted mb-0">오늘도 즐거운 커뮤니티 활동 되세요.</p>
+        </div>
+    </div>
+
+    <div class="col-md-6 mb-4">
+        <div class="card h-100 border-danger border-opacity-25">
+            <div class="card-header bg-danger bg-opacity-10 text-danger">
+                <i class="bi bi-fire"></i> <strong>지금 뜨는 인기글</strong>
+            </div>
+            <ul class="list-group list-group-flush">
+                {% for post in hot_posts %}
+                <li class="list-group-item d-flex justify-content-between align-items-center">
+                    <div class="d-flex align-items-center text-truncate" style="max-width: 80%;">
+                        <span class="badge bg-secondary me-2" style="font-size: 0.7rem;">{{ post.board.name }}</span>
+                        <a href="{% url 'boards:board_detail' post.board.code post.pk %}" class="text-decoration-none text-dark text-truncate">
+                            {{ post.title }}
+                        </a>
+                        
+                        {% if post.comments.count > 0 %}
+                        <span class="text-danger small ms-1">[{{ post.comments.count }}]</span>
+                        {% endif %}
+                    </div>
+                    <span class="badge bg-danger rounded-pill">{{ post.views }}</span>
+                </li>
+                {% empty %}
+                <li class="list-group-item text-center text-muted small py-3">아직 인기글이 없습니다.</li>
+                {% endfor %}
+            </ul>
+        </div>
+    </div>
+
+    <div class="col-md-6 mb-4">
+        <div class="card h-100">
+            <div class="card-header bg-light">
+                <i class="bi bi-clock"></i> <strong>자유게시판 최신글</strong>
+            </div>
+            <ul class="list-group list-group-flush">
+                {% for post in free_posts %}
+                <li class="list-group-item d-flex justify-content-between align-items-center">
+                    <a href="{% url 'boards:board_detail' post.board.code post.pk %}" class="text-decoration-none text-dark text-truncate" style="max-width: 75%;">
+                        {{ post.title }}
+                        {% if post.created_at|date:"Y-m-d" == today|date:"Y-m-d" %}
+                        <span class="badge bg-warning text-dark" style="font-size: 0.6rem;">N</span>
+                        {% endif %}
+                    </a>
+                    <div class="small text-muted">
+                        {{ post.author.username }}
+                    </div>
+                </li>
+                {% empty %}
+                <li class="list-group-item text-center text-muted small py-3">등록된 게시글이 없습니다.</li>
+                {% endfor %}
+            </ul>
+        </div>
+    </div>
+
+    <div class="col-md-4 mb-4">
+        <div class="card h-100 shadow-sm">
+            <div class="card-header bg-white">
+                <i class="bi bi-pencil-square text-primary"></i> <strong>내가 쓴 글</strong>
+            </div>
+            <ul class="list-group list-group-flush">
+                {% for post in my_posts %}
+                <li class="list-group-item d-flex justify-content-between align-items-center">
+                    <a href="{% url 'boards:board_detail' post.board.code post.pk %}" class="text-decoration-none text-dark text-truncate" style="max-width: 70%;">
+                        {{ post.title }}
+                    </a>
+                    <span class="badge bg-light text-secondary rounded-pill">{{ post.views }} view</span>
+                </li>
+                {% empty %}
+                <li class="list-group-item text-center text-muted small py-3">작성한 글이 없습니다.</li>
+                {% endfor %}
+            </ul>
+        </div>
+    </div>
+
+    <div class="col-md-4 mb-4">
+        <div class="card h-100 shadow-sm">
+            <div class="card-header bg-white">
+                <i class="bi bi-chat-dots text-success"></i> <strong>내가 쓴 댓글</strong>
+            </div>
+            <ul class="list-group list-group-flush">
+                {% for comment in my_comments %}
+                <li class="list-group-item">
+                    <div class="text-truncate small mb-1">
+                        <a href="{% url 'boards:board_detail' comment.post.board.code comment.post.pk %}" class="text-decoration-none text-dark">
+                            {{ comment.content }}
+                        </a>
+                    </div>
+                    <div class="text-muted" style="font-size: 0.75rem;">
+                        <i class="bi bi-arrow-return-right"></i> {{ comment.post.title|truncatechars:15 }}
+                    </div>
+                </li>
+                {% empty %}
+                <li class="list-group-item text-center text-muted small py-3">작성한 댓글이 없습니다.</li>
+                {% endfor %}
+            </ul>
+        </div>
+    </div>
+
+    <div class="col-md-4 mb-4">
+        <div class="card h-100 shadow-sm">
+            <div class="card-header bg-white">
+                <i class="bi bi-heart-fill text-danger"></i> <strong>좋아요 한 글</strong>
+            </div>
+            <ul class="list-group list-group-flush">
+                {% for post in like_posts %}
+                <li class="list-group-item">
+                    <a href="{% url 'boards:board_detail' post.board.code post.pk %}" class="text-decoration-none text-dark d-block text-truncate">
+                        {{ post.title }}
+                    </a>
+                    <div class="small text-muted text-end mt-1">
+                        by {{ post.author.username }}
+                    </div>
+                </li>
+                {% empty %}
+                <li class="list-group-item text-center text-muted small py-3">좋아요 한 글이 없습니다.</li>
+                {% endfor %}
+            </ul>
+        </div>
+    </div>
+</div>
+{% endblock %}

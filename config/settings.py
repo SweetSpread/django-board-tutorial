@@ -130,9 +130,15 @@ DEFAULT_AUTO_FIELD = 'django.db.models.BigAutoField'
 # 기본 User 모델 대신 accounts 앱의 User 모델을 사용한다고 명시
 AUTH_USER_MODEL = 'accounts.User'
 
+
+# @login_required를 만났을 때 이동할 로그인 페이지 주소
+LOGIN_URL = '/accounts/login'
+
 # 로그인/로그아웃 후 이동할 URL 설정
 # 로그인 성공 시 이동할 URL (일단 자유게시판으로 고정)
-LOGIN_REDIRECT_URL = '/board/free/'
+#LOGIN_REDIRECT_URL = '/board/free/'
+Login_REDIRECT_URL = '/'
+
 # 로그아웃 후 이동할 URL (로그아웃 했으니 다시 게시판 목록으로)
 LOGOUT_REDIRECT_URL = '/accounts/login/'
 

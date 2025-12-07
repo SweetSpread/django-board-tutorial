@@ -18,8 +18,12 @@ from django.contrib import admin
 from django.urls import path, include # include imports
 from django.conf import settings    # 설정 가져오기
 from django.conf.urls.static import static  #정적파일 연결 함수
+from boards import views as board_views  # boards 앱의 views를 가져옵니다.
 
 urlpatterns = [
+    # 루트 URL ('')을 home 뷰와 연결 -> 이름은 'home'
+    path('', board_views.home, name='home'), 
+
     path('admin/', admin.site.urls),
 
     # http://127.0.0.1:8000/board/ 로 시작하는 모든 요청은

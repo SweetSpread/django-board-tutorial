@@ -8,6 +8,40 @@ from django.contrib import messages # 알림 메시지 띄우기용 (옵션)
 from django.core.paginator import Paginator # 페이징 도구
 from django.db.models import Q  # OR 조건을 쓰기 위한 도구
 
+# 메인 페이지
+@login_required
+def home(request):
+    # 1. 내가 쓴 글(최신순 5개)
+    my_posts = Post.objects.filter(author=request.user).order_by('-created_at')[:5]
+
+    # 2. 내가 쓴 댓글 (최신순 5개)
+    # select_related('post'): 댓글이 달린 게시판 제목도 같이 가져오기 위해 (DB 성능 최적화)
+    my_comments = Comment.objects.filter(author=request.user).select_related('post').order_by('-created_at')[:5]
+
+    # 3. 내가 좋아요 한 글(최신순 5개)
+    # STEP 4에서 related_name='like_posts'로 설정했었습니다.
+    like_posts = request.user.like_posts.all().order_by('-id')[:5]
+
+    # 커뮤니티 현황
+    # 1. 전체 게시판 통합 인기글 (조회수 높은 순 TOP 5)
+    # (나중에 '좋아요' 순으로 바꾸려면 order_by('-likes)로 변경 가능)
+    hot_posts = Post.objects.all().order_by('-views')[:5]
+
+    # 2. 자유게시판(free) 최신글 Top 5
+    # 주의: admin 페이지에서 코드가 'free'인 게시판을 먼저 만들어야 에러가 안 납니다.!
+    # 만약 게시판이 없다면 빈 리스트로 반환되므로 에러는 안납니다.
+    free_posts = Post.objects.filter(board__code='free').order_by('-created_at')[:5]
+
+    context = {
+        'my_posts': my_posts,
+        'my_comments': my_comments,
+        'like_posts': like_posts,
+        'hot_posts': hot_posts,
+        'free_posts': free_posts,
+    }
+    
+    return render(request, 'home.html', context)
+
 # 자바 Controller 메서드와 동일
 # request: 자바의 HttpServletRequest
 # board_code: URL에서 넘겨받은 게시판 코드 (예 : 'free')
