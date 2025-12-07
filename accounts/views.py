@@ -6,7 +6,7 @@ from django.contrib.auth.decorators import login_required
 def signup(request):
     if request.method == 'POST':
         # [POST] 가입 처리
-        form = CustomUserCreationForm(request.POST)
+        form = CustomUserCreationForm(request.POST, request.FILES)
         if form.is_valid():
             user = form.save()  # DB에 저장(비밀번호 암호화 자동 처리)
 
@@ -34,7 +34,7 @@ def profile(request):
 def profile_edit(request):
     if request.method == 'POST':
         # instance=request.user : 현재 로그인된 사용자 정보를 폼에 채워넣고 시작
-        form = CustomUserChangeForm(request.POST, instance=request.user)
+        form = CustomUserChangeForm(request.POST, request.FILES, instance=request.user)
         if form.is_valid():
             form.save()
             return redirect('accounts:profile') # 수정 후 마이페이지로 이동
