@@ -51,7 +51,7 @@
                 목록으로
             </a>
 
-            {% if user == post.author %}
+            {% if user == post.author or user.is_board_manager or user.is_superuser %}
             <div>
                 <a href="{% url 'boards:board_edit' board.code post.pk %}" class="btn btn-primary">수정</a>
                 <a href="{% url 'boards:board_delete' board.code post.pk %}" 
@@ -113,7 +113,7 @@
                                 <span class="text-muted small ms-2">{{ comment.created_at|naturaltime }}</span>
                             </div>
                             
-                            {% if user == comment.author %}
+                            {% if user == comment.author or user.is_board_manager or user.is_superuser %}
                             <div>
                                 <a href="{% url 'boards:comment_edit' comment.pk %}" class="text-decoration-none small text-muted me-2">수정</a>
                                 

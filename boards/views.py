@@ -186,7 +186,7 @@ def board_edit(request, board_code, pk):
     post = get_object_or_404(Post, pk=pk, board=board)
 
     # [권한 체크] 작성자가 아니면 수정 불가
-    if post.author != request.user:
+    if post.author != request.user and not request.user.is_board_manager and not request.user.superuser:
         messages.error(request, "수정 권한이 없습니다.")
         return redirect('boards:board_detail', board_code=board_code, pk=pk)
     
@@ -217,15 +217,25 @@ def board_delete(request, board_code, pk):
     post = get_object_or_404(Post, pk=pk, board=board)
 
     # [권한 체크] 작성자가 아니면 삭제 불가
+    '''
     if post.author != request.user:
         messages.error(request, "삭제 권한이 없습니다.")
         return redirect('boards:board_detail', board_code=board_code, pk=pk)
-    
+
     # [실제 삭제] Delete SQL 실행
     post.delete()
 
     # 삭제 후 목록으로 이동
     return redirect('boards:board_list', board_code=board_code)
+    '''
+    # 기존 : 작성자 본인만 / 변경 : 작성자 본인 or 게시판 관리자 or 시스템관리자 가 삭제 가능
+    if request.user == post.author or request.user.is_board_manager or request.user.is_superuser:
+        post.delete()
+        return redirect('boards:board_list', board_code=board_code)
+    else:
+        # 권한 없는 사람이 시도하면 에러 페이지(403)를 띄우거나 뒤로 보냄
+        # 여기서는 간단하게 상세 페이지로 돌려보냄
+        return redirect('boards:board_detail', board_code=board_code, pk=pk)
 
 # 댓글 저장 기능
 @login_required
@@ -250,7 +260,7 @@ def comment_edit(request, comment_pk):
     comment = get_object_or_404(Comment, pk=comment_pk)
 
     # [보안] 작성자가 아니면 권한 없음 에러를 띄우거나, 원래 페이지로 돌려보냅니다.
-    if comment.author != request.user:
+    if comment.author != request.user and not request.user.is_board_manager and not request.user.is_superuser:
         return redirect('boards:board_detail', board_code=comment.post.board.code, pk=comment.post.pk)
     
     if request.method == 'POST':
@@ -274,9 +284,15 @@ def comment_delete(request, comment_pk):
     # 삭제할 댓글을 DB에서 가져옵니다.
     comment = get_object_or_404(Comment, pk=comment_pk)
 
+    '''
     # [보안] 작성자 보인 확인
     if comment.author == request.user:
         comment.delete() # DB 에서 삭제
+    '''
+
+    # 기존 : 작성자 본인만 / 변경 : 작성자 본인 or 게시판 관리자 or 시스템관리자가 삭제 가능
+    if request.user == comment.author or request.user.is_board_manager or request.user.is_superuser:
+        comment.delete()
     
     # 삭제 후 원래 있던 게시글 상세 페이지로 돌아갑니다.
     return redirect('boards:board_detail', board_code=comment.post.board.code, pk=comment.post.pk)
