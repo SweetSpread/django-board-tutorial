@@ -16,3 +16,6 @@ db.sqlite3
 
 # OS 시스템 파일
 .DS_Store
+
+# 환경 변수 파일 무시
+.env

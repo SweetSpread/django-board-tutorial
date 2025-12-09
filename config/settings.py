@@ -10,7 +10,10 @@ For the full list of settings and their values, see
 https://docs.djangoproject.com/en/5.2/ref/settings/
 """
 
+import dj_database_url
 from pathlib import Path
+from decouple import config     # 라이브러리 import
+from decouple import Csv
 
 # Build paths inside the project like this: BASE_DIR / 'subdir'.
 BASE_DIR = Path(__file__).resolve().parent.parent
@@ -20,12 +23,21 @@ BASE_DIR = Path(__file__).resolve().parent.parent
 # See https://docs.djangoproject.com/en/5.2/howto/deployment/checklist/
 
 # SECURITY WARNING: keep the secret key used in production secret!
-SECRET_KEY = 'django-insecure-9#%5sp94pm_-1+3p2ds@ppxtt(yxf)wqxu7#8&nr@8qi9v-_=p'
+#SECRET_KEY = 'django-insecure-9#%5sp94pm_-1+3p2ds@ppxtt(yxf)wqxu7#8&nr@8qi9v-_=p'
+SECRET_KEY = config('SECRET_KEY')
 
 # SECURITY WARNING: don't run with debug turned on in production!
-DEBUG = True
+# DEBUG 모드 설정
+# .env에서 읽어오되, 없으면 기본값 False(보안상 안전하게)
+# cast=bool : 문자열 'True'를 파이썬 불리언 True로 변환해 줌
+#DEBUG = True
+DEBUG = config('DEBUG', default=False, cast=bool)
 
-ALLOWED_HOSTS = []
+# ALLOWED_HOSTS 설정
+# .env에 있는 콤마(,)로 구분된 문자열을 리스트로 변환
+# Csv()는 decouple이 제공하는 헬퍼 함수
+#ALLOWED_HOSTS = []
+ALLOWED_HOSTS = config('ALLOWED_HOSTS', cast=Csv())
 
 
 # Application definition
@@ -85,6 +97,12 @@ DATABASES = {
         'NAME': BASE_DIR / 'db.sqlite3',
     }
 }
+
+# .env 파일에 'DATABASE_URL'이라는 설정이 있다면 그 설정으로 덮어씀 (배포용)
+db_config = config('DATABASE_URL', default=None)
+
+if db_config:
+    DATABASES['default'] = dj_database_url.parse(db_config)
 
 
 # Password validation
