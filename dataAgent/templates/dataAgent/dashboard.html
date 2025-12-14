@@ -12,8 +12,8 @@
             현재까지 누적된 총 게시글 수는 <strong>{{ total_posts }}개</strong> 입니다.
         </div>
 
-        <div class="row">
-            <div class="col-md-4">
+        <div class="row mb-4">
+            <div class="col-md-6">
                 <div class="card">
                     <div class="card-header bg-success text-white">
                         🏆 열혈 작성자 TOP 5
@@ -23,8 +23,20 @@
                     </div>
                 </div>
             </div>
+            <div class="col-md-6">
+                <div class="card h-100">
+                    <div class="card-header bg-warning text-dark">
+                        🍕 카테고리별 점유율
+                    </div>
+                    <div class="card-body text-center">
+                        <img src="data:image/png;base64,{{ pie_chart }}" style="max-width: 80%; height: auto;">
+                    </div>
+                </div>
+            </div>
+        </div>
 
-            <div class="col-md-8">
+        <div class="row">
+            <div class="col-md-12">
                 <div class="card">
                     <div class="card-header bg-primary text-white">
                         📈 일별 게시글 등록 추이

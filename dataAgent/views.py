@@ -9,6 +9,23 @@ import seaborn as sns
 import io
 import urllib, base64
 
+import platform
+from matplotlib import font_manager, rc
+
+# 1. 운영체제에 맞춰 한글 폰트 설정
+if platform.system() == 'Windows':
+    # 윈도우인 경우 '맑은 고딕' 사용
+    font_path = "c:/Windows/Fonts/malgun.ttf"
+    font_name = font_manager.FontProperties(fname=font_path).get_name()
+    rc('font', family=font_name)
+elif platform.system() == 'Darwin':
+    # 맥(Mac)인 경우 'AppleGothic' 사용
+    rc('font', family='AppleGothic')
+
+# 2. 마이너스 기호(-)가 깨지는 현상 방지
+plt.rcParams['axes.unicode_minus'] = False
+
+# [추가할 코드 끝] -----------------------------------------
 # [Skill 1] 서버 전용 백엔드 설정(GUI 창을 띄우지 않고 파일로만 그림)
 plt.switch_backend('Agg')
 
@@ -64,7 +81,7 @@ def dashboard(request):
 
     # 1. 실제 데이터 DB에서 가져오기
     # author__username: 작성자의 닉네임이나 아이디를 바로 가져오는 ORM 스킬
-    posts = Post.objects.all().values('title', 'author__username', 'created_at')
+    posts = Post.objects.all().values('title', 'author__username', 'created_at', 'category')
 
     # 2. DataFrame으로 변환
     df = pd.DataFrame(posts)
@@ -96,6 +113,40 @@ def dashboard(request):
     daily_counts = df['date_str'].value_counts().sort_index()
 
     # ---------------------------------------------------------------
+    # [분석 3] 카테고리별 점유율 (Pie Chart)
+
+    # 1. 카테고리별 개수 세기
+    category_counts = df['category'].value_counts()
+
+    # 2. 영어(DB값) -> 한글(화면용) 변환 사전
+    category_map = {
+        'common': '일반',
+        'question': '질문',
+        'review': '후기',
+        'notice': '공지'
+    }
+    # 라벨 리스트 만들기(리스트 내포 문법 사용)
+    labels_korean = [category_map.get(cat, cat) for cat in category_counts.index]
+
+    # 3. 파이 차트 그리기
+    plt.figure(figsize=(6,6))   # 정사각형 캔버스
+
+    # autopct : 비율 표시 포맷 ('%1.1f%%' -> 소수점 1자리까지)
+    # startangle : 시작 각도 (90도=12시방향)
+    # colors: Seaborn의 파스텔 톤 색상 팔레트 사용
+    plt.pie(category_counts, labels=labels_korean, autopct='%1.1f%%', startangle=90, counterclock=False, colors=sns.color_palette('pastel'))
+
+    plt.title("카테고리별 게시글 비율")
+
+    # 이미지 저장 (인코딩)
+    buffer = io.BytesIO()
+    plt.savefig(buffer, format='png')
+    buffer.seek(0)
+    img_bytes = buffer.getvalue()
+    buffer.close()
+    graphic_pie = base64.b64encode(img_bytes).decode('utf-8')
+
+    # ---------------------------------------------------------------
     # [시각화] 꺾은선 그래프 그리기 (Line Plot)
     plt.figure(figsize=(10, 5))
 
@@ -124,6 +175,7 @@ def dashboard(request):
     context = {
         'top_writers_table': top_writers_html,
         'daily_trend_graph': graphic,
+        'pie_chart': graphic_pie, # <-- 여기 추가되었습니다!
         'total_posts': len(df),
         'no_data': False
     }
