@@ -1,20 +1,39 @@
 {% extends 'base.html' %}
 
 {% block content %}
-    <div class="row">
-        <div class="col-md-6">
-            <h3>🛳️ 객실 등급별 요금 그래프</h3>
-            <img src="data:image/png;base64,{{ graph_image }}" alt="그래프" style="width:100%;">
+    <h1 class="mb-4">📊 우리 커뮤니티 분석 리포트</h1>
+    
+    {% if no_data %}
+        <div class="alert alert-warning">
+            아직 분석할 데이터(게시글)가 없습니다! 글을 먼저 작성해주세요. ✍️
+        </div>
+    {% else %}
+        <div class="alert alert-info">
+            현재까지 누적된 총 게시글 수는 <strong>{{ total_posts }}개</strong> 입니다.
         </div>
 
-        <div class="col-md-6">
-            <h3>👴 최고령 승객 TOP 5</h3>
-            {{ top_5_table | safe }}
+        <div class="row">
+            <div class="col-md-4">
+                <div class="card">
+                    <div class="card-header bg-success text-white">
+                        🏆 열혈 작성자 TOP 5
+                    </div>
+                    <div class="card-body">
+                        {{ top_writers_table | safe }}
+                    </div>
+                </div>
+            </div>
+
+            <div class="col-md-8">
+                <div class="card">
+                    <div class="card-header bg-primary text-white">
+                        📈 일별 게시글 등록 추이
+                    </div>
+                    <div class="card-body text-center">
+                        <img src="data:image/png;base64,{{ daily_trend_graph }}" style="max-width: 100%; height: auto;">
+                    </div>
+                </div>
+            </div>
         </div>
-    </div>
-
-    <hr>
-
-    <h3>📈 데이터 전체 통계 요약 (Describe)</h3>
-    {{ summary_table | safe }}
+    {% endif %}
 {% endblock %}

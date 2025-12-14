@@ -33,6 +33,16 @@ class Post(models.Model):
     # 주의 : 한 모델에서 User를 2번 이상 참조할 땐 related_name이 필수입니다!
     update_author = models.ForeignKey(settings.AUTH_USER_MODEL, on_delete=models.CASCADE, related_name='updated_posts', null=True, blank=True, verbose_name="수정자")
 
+    # 카테고리 정의
+    CATEGORY_CHOICES = [
+        ('common', '일반'),
+        ('question', '질문'),
+        ('review', '후기'),
+        ('notice', '공지'),
+    ]
+
+    category = models.CharField(max_length=10, choices=CATEGORY_CHOICES, default='common', verbose_name='카테고리')
+
     title = models.CharField(max_length=200, verbose_name="제목")
     content = models.TextField(verbose_name="내용") # 길이 제한 없는 문자열
 
