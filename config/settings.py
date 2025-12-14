@@ -55,6 +55,7 @@ INSTALLED_APPS = [
     # Spring의 @ComponentScan 처럼, 여기에 등록해야 장고가 이 앱들을 관리합니다.
     'accounts', # 회원 관리 앱
     'boards',   # 게시판 관리 앱
+    'dataAgent' # 데이터 분석, 그래프 등 pandas 프로젝트 앱
 ]
 
 MIDDLEWARE = [

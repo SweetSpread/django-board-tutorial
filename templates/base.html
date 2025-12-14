@@ -22,6 +22,9 @@
                     <li class="nav-item">
                         <a class="nav-link" href="{% url 'boards:board_list' 'free' %}">자유게시판</a>
                     </li>
+                    <li class="nav-item">
+                        <a class="nav-link" href="{% url 'dashboard' %}">pandas training</a>
+                    </li>
                 </ul>
                 <ul class="navbar-nav">
                     {% if user.is_authenticated %}

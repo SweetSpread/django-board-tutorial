@@ -33,6 +33,10 @@ urlpatterns = [
     # http://127.0.0.1:8000/accounts/ 로 시작하는 모든 요청은
     # accounts 앱 안에 있는 urls.py 파일로 처리를 넘긴다는 뜻
     path('accounts/', include('accounts.urls')),
+
+    # http://127.0.0.1:8000/dashboard/ 로 시작하는 모든 요청은
+    # dataAgent 앱 안에 있는 urls.py 파일로 처리를 넘긴다는 뜻
+    path('dashboard/', include('dataAgent.urls')),
 ]
 
 # 개발 모드일 때만 미디어 파일 서빙 설정
